@@ -72,6 +72,10 @@ extern char zapit_long[21];
 //static int all_usals = 1;
 //sat_iterator_t sit;
 
+#if BOXMODEL_VUPLUS_ALL
+static char * tuner_desc[24] = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
+#endif
+
 #define SCANTS_BOUQUET_OPTION_COUNT 3
 const CMenuOptionChooser::keyval SCANTS_BOUQUET_OPTIONS[SCANTS_BOUQUET_OPTION_COUNT] =
 {
@@ -324,13 +328,12 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_POL[SATSETUP_SCANTP_POL_COUNT] 
 	{ 3, LOCALE_EXTRA_TP_POL_R }
 };
 
-#define SATSETUP_SCANTP_PILOT_COUNT 4
+#define SATSETUP_SCANTP_PILOT_COUNT 3
 const CMenuOptionChooser::keyval SATSETUP_SCANTP_PILOT[SATSETUP_SCANTP_PILOT_COUNT] =
 {
 	{ ZPILOT_ON,      LOCALE_OPTIONS_ON },
 	{ ZPILOT_OFF,     LOCALE_OPTIONS_OFF },
-	{ ZPILOT_AUTO,    LOCALE_EXTRA_TP_PILOT_AUTO },
-	{ ZPILOT_AUTO_SW, LOCALE_EXTRA_TP_PILOT_AUTO_SW }
+	{ ZPILOT_AUTO,    LOCALE_EXTRA_TP_PILOT_AUTO }
 };
 
 #define OPTIONS_SOUTH0_NORTH1_OPTION_COUNT 2
@@ -617,7 +620,7 @@ int CScanSetup::showScanMenu()
 	//sat/provider selector
 #if 0
 	if(CFEManager::getInstance()->haveSat() || CFEManager::getInstance()->getFrontendCount() > 1) {
-		mf = new CMenuForwarder(LOCALE_SATSETUP_FE_SETUP, allow_start, NULL, this, "setup_frontend", CRCInput::convertDigitToKey(shortcut++));
+		mf = new CMenuForwarder(LOCALE_SATSETUP_FE_TUNER, allow_start, NULL, this, "setup_frontend", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FESETUP);
 		settings->addItem(mf);
 	}
@@ -818,12 +821,22 @@ int CScanSetup::showScanMenuFrontendSetup()
 		snprintf(tmp, sizeof(tmp), "config_frontend%d", i);
 
 		char name[255];
-		snprintf(name, sizeof(name), "%s %d: %s %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
-				fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
-				: fe->hasSat() ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
-				: fe->hasTerr()? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
+#if BOXMODEL_VUPLUS_ALL
+		snprintf(name, sizeof(name), "%s %d: %s [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), i+1,
+				  fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
+				: fe->hasSat()   ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+				: fe->hasTerr()  ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
+				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
+				tuner_desc[i],
+				fe->getName());
+#else
+		snprintf(name, sizeof(name), "%s %d: %s %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), i+1,
+				  fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
+				: fe->hasSat()   ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+				: fe->hasTerr()  ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
 				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
 				fe->getName());
+#endif
 
 		neutrino_msg_t key = CRCInput::RC_nokey;
 		if (i == 0)
@@ -954,7 +967,11 @@ int CScanSetup::showFrontendSetup(int number)
 	dmode = fe_config.diseqcType;
 
 	char name[255];
-	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, fe->getName());
+#if BOXMODEL_VUPLUS_ALL
+	snprintf(name, sizeof(name), "%s %d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), number+1, tuner_desc[number], fe->getName());
+#else
+	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), number+1, fe->getName());
+#endif
 
 	CMenuWidget * setupMenu = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	setupMenu->setSelected(feselected);
@@ -1180,7 +1197,11 @@ int CScanSetup::showScanMenuLnbSetup()
 	CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 
 	char name[255];
+#if BOXMODEL_VUPLUS_ALL
+	snprintf(name, sizeof(name), "%s %d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_SATELLITE), fenumber+1, tuner_desc[fenumber], fe->getName());
+#else
 	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_SATELLITE), fenumber+1, fe->getName());
+#endif
 
 	CMenuWidget * sat_setup = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	sat_setup->addIntroItems();
@@ -1342,7 +1363,11 @@ int CScanSetup::showScanMenuSatFind()
 
 	r_system = ALL_SAT;
 
+#if BOXMODEL_VUPLUS_ALL
+	snprintf(name, sizeof(name), "%s %d: [%s] %s", g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), fenumber+1, tuner_desc[fenumber], fe->getName());
+#else
 	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), fenumber+1, fe->getName());
+#endif
 
 	CMenuWidget* sat_findMenu = new CMenuWidget(name /*LOCALE_MOTORCONTROL_HEAD*/, NEUTRINO_ICON_SETTINGS, width);
 	sat_findMenu->setSelected(selected);

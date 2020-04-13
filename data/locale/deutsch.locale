@@ -584,8 +584,7 @@ extra.tp_mod_8 8PSK
 extra.tp_mod_8a 8APSK
 extra.tp_mod_auto AUTO
 extra.tp_pilot Pilot
-extra.tp_pilot_auto Auto (HW)
-extra.tp_pilot_auto_sw Auto (SW)
+extra.tp_pilot_auto Auto
 extra.tp_plc PLM Code
 extra.tp_pli Stream ID
 extra.tp_plm PLS Modus
@@ -2286,6 +2285,7 @@ satsetup.fe_mode_link_twin TWIN
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Nicht genutzt
 satsetup.fe_setup Tuner Einstellungen
+satsetup.fe_tuner Tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
